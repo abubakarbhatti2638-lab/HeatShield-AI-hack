@@ -1,0 +1,12 @@
+{
+  "name": "heatshield-ai-root",
+  "version": "1.0.0",
+  "description": "Deployment configuration for HeatShield AI",
+  "scripts": {
+    "postinstall": "cd backend && npm install && cd ../frontend && npm install && npm run build",
+    "start": "cd backend && node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
