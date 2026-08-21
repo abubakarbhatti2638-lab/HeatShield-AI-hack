@@ -1,4 +1,4 @@
-const weatherProvider = require('../services/weather/weatherProvider');
+const fortyguardProvider = require('../services/fortyguard');
 const heatRiskService = require('../services/heatRiskService');
 
 exports.getHeatRisk = async (req, res) => {
@@ -9,8 +9,18 @@ exports.getHeatRisk = async (req, res) => {
       return res.status(400).json({ error: 'Latitude and longitude are required' });
     }
 
-    // Fetch current weather data to base the risk upon
-    const weatherData = await weatherProvider.getCurrentWeather(lat, lon);
+    // Fetch current data to base the risk upon
+    const locationStr = `${lat},${lon}`;
+    const tempRes = await fortyguardProvider.getTemperature(locationStr);
+    const envRes = await fortyguardProvider.getEnvironmentalParameters(locationStr);
+    
+    const weatherData = {
+      temperature: tempRes.temperature,
+      apparentTemperature: tempRes.apparent_temperature,
+      humidity: tempRes.humidity,
+      windSpeed: envRes.wind_speed,
+      timestamp: tempRes.timestamp
+    };
     
     // Calculate heat risk
     const riskAnalysis = heatRiskService.calculateRisk(

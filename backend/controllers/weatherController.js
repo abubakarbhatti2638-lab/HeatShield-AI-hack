@@ -1,4 +1,4 @@
-const weatherProvider = require('../services/weather/weatherProvider');
+const fortyguardProvider = require('../services/fortyguard');
 
 exports.getWeather = async (req, res) => {
   try {
@@ -8,8 +8,19 @@ exports.getWeather = async (req, res) => {
       return res.status(400).json({ error: 'Latitude and longitude are required' });
     }
 
-    const weatherData = await weatherProvider.getCurrentWeather(lat, lon);
+    const locationStr = `${lat},${lon}`;
+    const tempRes = await fortyguardProvider.getTemperature(locationStr);
+    const envRes = await fortyguardProvider.getEnvironmentalParameters(locationStr);
     
+    // Map to the format frontend expects
+    const weatherData = {
+      temperature: tempRes.temperature,
+      apparentTemperature: tempRes.apparent_temperature,
+      humidity: tempRes.humidity,
+      windSpeed: envRes.wind_speed,
+      timestamp: tempRes.timestamp
+    };
+
     res.json({
       success: true,
       data: weatherData
