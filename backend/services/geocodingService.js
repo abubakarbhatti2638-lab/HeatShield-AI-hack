@@ -3,28 +3,28 @@ const axios = require('axios');
 class GeocodingService {
   async searchLocation(query) {
     try {
-      const apiKey = process.env.OPENWEATHER_API_KEY;
-      if (!apiKey) {
-        throw new Error('OPENWEATHER_API_KEY environment variable is not set');
-      }
-
-      const url = `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${apiKey}`;
-      const response = await axios.get(url);
+      // Using Nominatim (OpenStreetMap) for geocoding since OpenWeather is removed.
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`;
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'HeatShield-AI-Hackathon'
+        }
+      });
       
       if (!response.data || response.data.length === 0) {
         return [];
       }
 
       return response.data.map(loc => ({
-        id: `${loc.lat}-${loc.lon}`, // OpenWeather geo doesn't return a unique ID, generating one
+        id: loc.place_id.toString(),
         name: loc.name,
-        country: loc.country,
-        admin1: loc.state, // state/province
-        lat: loc.lat,
-        lon: loc.lon
+        country: loc.display_name.split(',').pop().trim(), // basic extraction
+        admin1: '', // Not always clean in Nominatim display_name, leaving blank or parsing could be complex
+        lat: parseFloat(loc.lat),
+        lon: parseFloat(loc.lon)
       }));
     } catch (error) {
-      console.error('Error fetching geocoding data:', error.response?.data || error.message);
+      console.error('Error fetching geocoding data from Nominatim:', error.message);
       throw new Error('Failed to search for location');
     }
   }

@@ -11,6 +11,13 @@ router.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'HeatShield AI API is running' });
 });
 
+// System Status (FortyGuard connectivity)
+const fortyguardStatus = require('../services/fortyguard/status');
+router.get('/status', async (req, res) => {
+  const status = await fortyguardStatus.checkStatus();
+  res.status(200).json(status);
+});
+
 // Location Routes
 router.get('/locations/search', locationController.searchLocations);
 

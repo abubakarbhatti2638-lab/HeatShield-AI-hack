@@ -9,12 +9,13 @@ const askAssistant = async (req, res) => {
     }
 
     // Pass the query and context to the AI service
-    const responseText = await aiService.generateResponse(query, context);
+    const { actions, response } = await aiService.generateResponse(query, context);
 
     res.status(200).json({
       success: true,
       data: {
-        answer: responseText
+        actions: actions || [],
+        answer: response
       }
     });
   } catch (error) {
